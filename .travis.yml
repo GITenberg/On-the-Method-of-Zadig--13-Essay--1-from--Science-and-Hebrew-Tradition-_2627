@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Xa5zA1x+C012hRZxZDeWsgdBmOUiaMAmxWYIL5fB5uJs+TP9DiYTrsuHRcvJq6t8plEpMb8QlVxMYijL6q+7HKi1vncoTi19+Ju+BG4TDeveFfbKzSGx5nuENUzQv3X9gEXScLtboeiY2cozSDC5E8COlABzhhyU5kwA6YvZ3N3sOsP6K6Q7eUiwHYnwS4YzzuiQyJ2fBZ/xx3nzdCOi4pORFN14pH+ho0QGrJu8dSnFmNPGVjFNTGwV9Iyov5hEkv3O/F3a8Bz7gfKsgwJVjg3OhRqHI2Kq+nOoTCskfMduvgn2PfPaW2rcUVF0JwFwJfSjcy5BeTrIstYuZXgO7faywmjifEZZtbcc+NkEqf1Uq4hI0MvxSsUOPWsHqLD0qhO5sx5Tr2d9j016y4jzdHnCppl2ycqlPAAIoSCHD1ZqcBifLLocBUn8wZ51uu1QMwXp0h0EFQZ1BZWuR0xG51TBk6owzXCn8pQR6dbob0TYZXkBLRK4cajTAnKhq2XSQ07aWeUYuZgYf+aB9QvpsizJ9t7uji1O8upZf7PeTVTKMCjZPBjiZXskvtWwUF53ShVSpYXSrY9jGkaVcvzt/+MHhC3zsX2v2Vnen0FYQ2ESzGft+FHrNJpYygJH7tzdJTkoG5RFmFaMPDPuaRyyC8+T7KQfIncxjVs5tyCWjJE=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/On-the-Method-of-Zadig--13-Essay--1-from--Science-and-Hebrew-Tradition-_2627
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
